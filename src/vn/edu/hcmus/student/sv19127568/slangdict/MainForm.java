@@ -22,7 +22,8 @@ public class MainForm extends JPanel {
         lbSearch = new JLabel("Search");
         txtSearch = new JTextField();
         txtSearch.setColumns(20);
-        String[] options = {"Search by slang", "Search by definition", "Random search"};
+        txtSearch.setToolTipText("Search for a slang word");
+        String[] options = {"By slang", "By definition", "Random search"};
         cbSearch = new JComboBox(options);
         this.frame = frame;
         mainPanel.add(lbSearch);
