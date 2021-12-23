@@ -2,7 +2,6 @@ package vn.edu.hcmus.student.sv19127568.slangdict;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
