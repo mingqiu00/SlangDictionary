@@ -1,8 +1,6 @@
 package vn.edu.hcmus.student.sv19127568.slangdict;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +18,34 @@ public class SlangDict {
      * init slang dict
      */
     public static void init() {
-        slangDict = hashFromTextFile();
+        try {
+            File fin = new File("slangdict.dat");
+            FileInputStream fis = new FileInputStream(fin);
+            ObjectInput ois = new ObjectInputStream(fis);
+            slangDict = (HashMap<String, String>) ois.readObject();
+            ois.close();
+            fis.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * save the slang dictionary
+     */
+    private void save() {
+        try {
+            File fout = new File("slangdict.dat");
+            FileOutputStream fos = new FileOutputStream(fout);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            oos.writeObject(slangDict);
+            oos.flush();
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -62,31 +87,35 @@ public class SlangDict {
     /**
      * search by slang word
      * @param slang String
-     * @return meaning String
+     * @return list of found slang words and their definition
      */
-    public static String searchBySlang(String slang) {
-        String meaning = null;
+    public static HashMap<String, String> searchBySlang(String slang) {
+        HashMap<String, String> res = new HashMap<String, String>();
         for(Map.Entry<String, String> entry : slangDict.entrySet()) {
-            if (entry.getKey().contains(slang)) {
-                meaning = entry.getValue();
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.startsWith(slang)) {
+                res.put(key,value);
             }
         }
-        return meaning;
+        return res;
     }
 
     /**
      * search by definition
      * @param def String
-     * @return slangs list of slang words
+     * @return list of found slang words and their definition
      */
-    public static ArrayList<String> searchByDefinition(String def) {
-        ArrayList<String> slangs = null;
+    public static HashMap<String, String> searchByDefinition(String def) {
+        HashMap<String, String> res = new HashMap<String, String>();
         for(Map.Entry<String, String> entry : slangDict.entrySet()) {
-            if (entry.getValue().contains(def)) {
-                slangs.add(entry.getValue());
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value.startsWith(def)) {
+                res.put(key,value);
             }
         }
-        return slangs;
+        return res;
     }
 
     /**

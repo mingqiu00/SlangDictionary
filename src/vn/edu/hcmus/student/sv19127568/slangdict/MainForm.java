@@ -2,6 +2,14 @@ package vn.edu.hcmus.student.sv19127568.slangdict;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
@@ -9,7 +17,7 @@ import java.awt.*;
  * Date 12/23/2021 - 12:56 AM
  * Description: Main Form
  */
-public class MainForm extends JPanel {
+public class MainForm extends JPanel implements ActionListener {
     JLabel lbSearch;
     JTextField txtSearch;
     JComboBox cbSearch;
@@ -24,6 +32,8 @@ public class MainForm extends JPanel {
         txtSearch.setToolTipText("Search for a slang word");
         String[] options = {"By slang", "By definition", "Random search"};
         cbSearch = new JComboBox(options);
+        cbSearch.addActionListener(this);
+        cbSearch.setActionCommand("search");
         this.frame = frame;
         mainPanel.add(lbSearch);
         mainPanel.add(txtSearch);
@@ -97,5 +107,44 @@ public class MainForm extends JPanel {
         mainFrame.pack();
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if("search".equals(e.getActionCommand())) {
+            String input = txtSearch.getText();
+            if (input.length() == 0) {
+                showMessageDialog(this.frame, "Please input a string to search!", "Error", ERROR_MESSAGE);
+            } else {
+                JComboBox cb = (JComboBox) e.getSource();
+                String option = (String)cb.getSelectedItem();
+                HashMap<String, String> res = null;
+                if (option.equals("By slang")) {
+                   res = SlangDict.searchBySlang(input);
+                   if (res.isEmpty()) {
+                       showMessageDialog(this.frame, "There is no slang matching that!");
+                   } else {
+                       for(Map.Entry<String, String> entry : res.entrySet()) {
+                           String key = entry.getKey();
+                           String value = entry.getValue();
+                           System.out.println(key+":"+value);
+                       }
+                   }
+                } else if (option.equals("By definition")) {
+                    res = SlangDict.searchByDefinition(input);
+                    if (res.isEmpty()) {
+                        showMessageDialog(this.frame, "There is no slang containing that!");
+                    } else {
+                        for(Map.Entry<String, String> entry : res.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+                            System.out.println(key+":"+value);
+                        }
+                    }
+                } else if (option.equals("Random search")) {
+
+                }
+            }
+        }
     }
 }
