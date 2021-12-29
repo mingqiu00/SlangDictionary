@@ -1,7 +1,6 @@
 package vn.edu.hcmus.student.sv19127568.slangdict;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,7 @@ import java.util.Map;
  * vn.edu.hcmus.student.sv19127568.slangdict
  * Created by Thu Nguyen
  * Date 12/23/2021 - 2:04 AM
- * Description: Load file into slang dictionary
+ * Description: slang dictionary methods and data initialization
  */
 public class SlangDict {
     public static HashMap<String, String> slangDict;
@@ -21,7 +20,7 @@ public class SlangDict {
         try {
             File fin = new File("slangdict.dat");
             FileInputStream fis = new FileInputStream(fin);
-            ObjectInput ois = new ObjectInputStream(fis);
+            ObjectInputStream ois = new ObjectInputStream(fis);
             slangDict = (HashMap<String, String>) ois.readObject();
             ois.close();
             fis.close();
@@ -111,10 +110,12 @@ public class SlangDict {
         for(Map.Entry<String, String> entry : slangDict.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            if (value.startsWith(def)) {
-                res.put(key,value);
+            String[] tokens = value.split(" ");
+            for (String word : tokens)
+                if (word.startsWith(def)) {
+                    res.put(key, value);
+                }
             }
-        }
         return res;
     }
 

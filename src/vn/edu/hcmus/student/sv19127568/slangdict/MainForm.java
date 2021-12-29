@@ -30,7 +30,7 @@ public class MainForm extends JPanel implements ActionListener {
         txtSearch = new JTextField();
         txtSearch.setColumns(20);
         txtSearch.setToolTipText("Search for a slang word");
-        String[] options = {"By slang", "By definition", "Random search"};
+        String[] options = {"By slang", "By definition"};
         cbSearch = new JComboBox(options);
         cbSearch.addActionListener(this);
         cbSearch.setActionCommand("search");
@@ -80,6 +80,10 @@ public class MainForm extends JPanel implements ActionListener {
         menu = new JMenu("Fun");
         menu.setToolTipText("Fun things to do with slang words");
         menuBar.add(menu);
+
+        menuItem = new JMenuItem("On this day slang");
+        menuItem.setToolTipText("Random a slang word and its definition");
+        menu.add(menuItem);
 
         menuItem = new JMenuItem("Random slang");
         menuItem.setToolTipText("Random a slang word and choose the right definition");
@@ -141,8 +145,6 @@ public class MainForm extends JPanel implements ActionListener {
                             System.out.println(key+":"+value);
                         }
                     }
-                } else if (option.equals("Random search")) {
-
                 }
             }
         }
