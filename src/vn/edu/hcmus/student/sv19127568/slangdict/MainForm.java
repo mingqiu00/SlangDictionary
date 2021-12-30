@@ -4,9 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
@@ -19,27 +19,59 @@ import static javax.swing.JOptionPane.showMessageDialog;
  */
 public class MainForm extends JPanel implements ActionListener {
     JLabel lbSearch;
+    JTextArea txtMeaning;
     JTextField txtSearch;
     JComboBox cbSearch;
+    JList<Slang> slangList;
+    DefaultListModel<Slang> slangModel;
+    JSplitPane splitPane;
     final JFrame frame;
 
     public MainForm(JFrame frame) {
-        JPanel mainPanel = new JPanel(new FlowLayout());
-        add(mainPanel, BorderLayout.CENTER);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
+        mainPanel.setPreferredSize(new Dimension(500, 30));
+        mainPanel.setMaximumSize(new Dimension(1000, 50));
+        add(mainPanel);
+        JPanel resPanel = new JPanel();
+        resPanel.setLayout(new BoxLayout(resPanel, BoxLayout.X_AXIS));
+        resPanel.setPreferredSize(new Dimension(500, 300));
+        add(Box.createRigidArea(new Dimension(0, 10)));
+        add(resPanel);
+        splitPane = new JSplitPane();
         lbSearch = new JLabel("Search");
         txtSearch = new JTextField();
         txtSearch.setColumns(20);
         txtSearch.setToolTipText("Search for a slang word");
+
         String[] options = {"By slang", "By definition"};
         cbSearch = new JComboBox(options);
         cbSearch.addActionListener(this);
         cbSearch.setActionCommand("search");
+        slangList = new JList<Slang>();
+        slangList.getSelectionModel().addListSelectionListener(e -> {
+            Slang s = slangList.getSelectedValue();
+            if (s != null) {
+                txtMeaning.setText(s.getMeaning());
+            }
+        });
+        slangModel = new DefaultListModel<>();
+        txtMeaning = new JTextArea();
+        txtMeaning.setEditable(false);
+        Font font = txtMeaning.getFont();
+        txtMeaning.setFont(font.deriveFont(font.getSize() + 2.0f));
+
         this.frame = frame;
+
+        splitPane.setLeftComponent(new JScrollPane(slangList,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         mainPanel.add(lbSearch);
         mainPanel.add(txtSearch);
         mainPanel.add(cbSearch);
-        mainPanel.setOpaque(true);
-        frame.setContentPane(mainPanel);
+        splitPane.setRightComponent(new JScrollPane(txtMeaning,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+        resPanel.add(splitPane);
     }
 
     public JMenuBar createMenuBar() {
@@ -99,13 +131,15 @@ public class MainForm extends JPanel implements ActionListener {
     public static void createAndShowGUI() {
         // Create and set up the window
         JFrame mainFrame = new JFrame("Slang dictionary");
-        mainFrame.setPreferredSize(new Dimension(500,400));
+        mainFrame.setPreferredSize(new Dimension(600,500));
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Add contents to the window
         MainForm mainForm = new MainForm(mainFrame);
-        mainFrame.setJMenuBar(mainForm.createMenuBar());
+        mainForm.setOpaque(true);
         mainFrame.add(mainForm);
+        mainFrame.setContentPane(mainForm);
+        mainFrame.setJMenuBar(mainForm.createMenuBar());
 
         // Display the window
         mainFrame.pack();
@@ -123,28 +157,22 @@ public class MainForm extends JPanel implements ActionListener {
                 JComboBox cb = (JComboBox) e.getSource();
                 String option = (String)cb.getSelectedItem();
                 HashMap<String, String> res = null;
+                Vector<Slang> slangs = new Vector<>();
                 if (option.equals("By slang")) {
                    res = SlangDict.searchBySlang(input);
-                   if (res.isEmpty()) {
-                       showMessageDialog(this.frame, "There is no slang matching that!");
-                   } else {
-                       for(Map.Entry<String, String> entry : res.entrySet()) {
-                           String key = entry.getKey();
-                           String value = entry.getValue();
-                           System.out.println(key+":"+value);
-                       }
-                   }
                 } else if (option.equals("By definition")) {
                     res = SlangDict.searchByDefinition(input);
-                    if (res.isEmpty()) {
-                        showMessageDialog(this.frame, "There is no slang containing that!");
-                    } else {
-                        for(Map.Entry<String, String> entry : res.entrySet()) {
-                            String key = entry.getKey();
-                            String value = entry.getValue();
-                            System.out.println(key+":"+value);
-                        }
+                }
+                if (res == null || res.isEmpty()) {
+                    showMessageDialog(this.frame, "There is no slang matching that!");
+                } else {
+                    for(Map.Entry<String, String> entry : res.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        slangs.add(new Slang(key, value));
                     }
+                    SlangListThread sl = new SlangListThread(txtMeaning, slangList, slangModel, slangs);
+                    sl.start();
                 }
             }
         }
