@@ -2,6 +2,7 @@ package vn.edu.hcmus.student.sv19127568.slangdict;
 
 import vn.edu.hcmus.student.sv19127568.slangdict.models.Slang;
 import vn.edu.hcmus.student.sv19127568.slangdict.models.SlangDict;
+import vn.edu.hcmus.student.sv19127568.slangdict.utils.SpringUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
@@ -35,6 +37,7 @@ public class MainForm extends JPanel implements ActionListener {
     JSplitPane splitPane;
     JDialog historyDialog, slangDetailsDialog;
     final JFrame frame;
+    final static int GAP = 10;
 
     public MainForm(JFrame frame) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -161,7 +164,7 @@ public class MainForm extends JPanel implements ActionListener {
     }
 
     private void createHistoryDialog(Vector<String> history) {
-        historyDialog = new JDialog(this.frame, "History");
+        historyDialog = new JDialog(this.frame, "History", true);
         historyDialog.setLayout(new BorderLayout());
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -176,6 +179,92 @@ public class MainForm extends JPanel implements ActionListener {
         historyDialog.setSize(new Dimension(300, 400));
         historyDialog.setLocationRelativeTo(null);
         historyDialog.setVisible(true);
+    }
+
+    private void createSlangDetailsDialog(String action, String slang_, String def_) {
+        slangDetailsDialog = new JDialog(this.frame, "Slang details", true);
+        slangDetailsDialog.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new SpringLayout());
+
+        String[] labelStrings = {"Slang: ", "Definition: "};
+        JLabel[] labels = new JLabel[labelStrings.length];
+        JComponent[] fields = new JComponent[labelStrings.length];
+        int fieldNum = 0;
+
+        txtSlang = new JTextField();
+        txtSlang.setColumns(20);
+        fields[fieldNum++] = txtSlang;
+        if (action.equals("edit")) {
+            txtSlang.setEditable(false);
+        }
+        txtSlang.setText(slang_);
+
+        txtDef = new JTextField();
+        txtDef.setColumns(20);
+        fields[fieldNum++] = txtDef;
+        txtDef.setText(def_);
+
+        for (int i = 0; i < labelStrings.length; i++) {
+            labels[i] = new JLabel(labelStrings[i], JLabel.TRAILING);
+            labels[i].setLabelFor(fields[i]);
+            panel.add(labels[i]);
+            panel.add(fields[i]);
+        }
+        SpringUtil.makeCompactGrid(panel, labelStrings.length, 2,
+                GAP, GAP, // init x, y
+                GAP, GAP); // xpad, ypad
+        slangDetailsDialog.add(panel, BorderLayout.CENTER);
+
+        JPanel btnPanel = new JPanel(new FlowLayout());
+        JButton btnOK, btnCancel;
+        btnOK = new JButton("OK");
+        btnOK.addActionListener(e -> {
+            slang = txtSlang.getText();
+            def = txtDef.getText();
+            if (slang.length() != 0 && def.length() != 0) {
+                if (action.equals("add")) {
+                    String meaning = SlangDict.isExisted(slang);
+                    if (meaning.equals("")) {
+                        SlangDict.add(slang, def);
+                        showMessageDialog(slangDetailsDialog, "Add successfully!");
+                        slangDetailsDialog.setVisible(false);
+                    } else {
+                        Object[] options = {"Overwrite", "Duplicate"};
+                        int selection = JOptionPane.showOptionDialog(slangDetailsDialog, "Existing slang in dictionary?",
+                                "Existing slang options", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+                        switch (selection) {
+                            // overwrite slang with new definition
+                            case 0:
+                                SlangDict.edit(slang, def);
+                                slangDetailsDialog.setVisible(false);
+                                break;
+                            // duplicate to a new slang
+                            case 1:
+                                SlangDict.edit(slang, meaning + "| " + def);
+                                slangDetailsDialog.setVisible(false);
+                                break;
+                        }
+                    }
+                } else if (action.equals("edit")) {
+                    SlangDict.edit(slang, txtDef.getText());
+                    showMessageDialog(slangDetailsDialog, "Edit successfully!");
+                    slangDetailsDialog.setVisible(false);
+                }
+            } else {
+                showMessageDialog(slangDetailsDialog, "Missing required data fields!", "Error", ERROR_MESSAGE);
+            }
+        });
+        btnOK.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnPanel.add(btnOK);
+
+        btnCancel = new JButton("Cancel");
+        btnCancel.addActionListener(e -> slangDetailsDialog.setVisible(false));
+        btnPanel.add(btnCancel);
+        slangDetailsDialog.add(btnPanel, BorderLayout.PAGE_END);
+
+        slangDetailsDialog.setSize(new Dimension(450, 200));
+        slangDetailsDialog.setLocationRelativeTo(null);
+        slangDetailsDialog.setVisible(true);
     }
 
     /**
@@ -237,20 +326,38 @@ public class MainForm extends JPanel implements ActionListener {
             }
         }
         if ("history".equals(e.getActionCommand())) {
-            createHistoryDialog(SlangDict.history);
+            javax.swing.SwingUtilities.invokeLater(() -> createHistoryDialog(SlangDict.history));
         }
         if ("reset".equals(e.getActionCommand())) {
             SlangDict.reset();
             showMessageDialog(this.frame, "Reset successfully!");
         }
         if ("add".equals(e.getActionCommand())) {
-
+            javax.swing.SwingUtilities.invokeLater(() -> createSlangDetailsDialog("add", "", ""));
         }
         if ("edit".equals(e.getActionCommand())) {
-
+            int idx = slangList.getSelectedIndex();
+            if (idx == -1) {
+                showMessageDialog(this.frame, "Please select a slang to edit!");
+            } else {
+                Slang s = slangList.getSelectedValue();
+                javax.swing.SwingUtilities.invokeLater(() -> createSlangDetailsDialog("edit", s.getSlang(), s.getMeaning()));
+            }
         }
         if ("delete".equals(e.getActionCommand())) {
-
+            try {
+                int idx = slangList.getSelectedIndex();
+                if (idx == -1) {
+                    showMessageDialog(this.frame, "Please select a slang to delete!");
+                } else {
+                    Slang s = slangList.getSelectedValue();
+                    slangModel.remove(idx);
+                    showMessageDialog(frame, "Delete successfully!");
+                    SlangDict.delete(s.getSlang(), s.getMeaning());
+                }
+            } catch (Exception err) {
+                // ignored
+            }
         }
         if ("random_otd".equals(e.getActionCommand())) {
 

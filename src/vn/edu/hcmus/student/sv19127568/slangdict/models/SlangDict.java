@@ -85,6 +85,23 @@ public class SlangDict {
     }
 
     /**
+     * check if a slang exists in the slang dicitonary
+     * if exists, return its meaning
+     * @param slang String
+     * @return boolean
+     */
+    public static String isExisted(String slang) {
+        for(Map.Entry<String, String> entry : slangDict.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.equals(slang)) {
+                return value;
+            }
+        }
+        return "";
+    }
+
+    /**
      * add a slang word to dictionary
      * @param slang String
      * @param meaning String
@@ -110,12 +127,13 @@ public class SlangDict {
     /**
      * delete an existing slang word
      * @param slang String
+     * @param meaning String
      */
-    public static void delete(String slang) {
+    public static void delete(String slang, String meaning) {
         for(Map.Entry<String, String> entry : slangDict.entrySet()) {
             String key = entry.getKey();
            if (key.equals(slang)) {
-                slangDict.remove(key);
+                slangDict.remove(slang, meaning);
            }
         }
     }
