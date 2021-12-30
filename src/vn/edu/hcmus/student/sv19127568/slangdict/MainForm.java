@@ -82,7 +82,9 @@ public class MainForm extends JPanel implements ActionListener {
         splitPane.setLeftComponent(new JScrollPane(slangList,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
         mainPanel.add(lbSearch);
+        mainPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         mainPanel.add(txtSearch);
+        mainPanel.add(Box.createRigidArea(new Dimension(5, 0)));
         mainPanel.add(cbSearch);
         splitPane.setRightComponent(new JScrollPane(txtMeaning,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
@@ -345,22 +347,35 @@ public class MainForm extends JPanel implements ActionListener {
             }
         }
         if ("delete".equals(e.getActionCommand())) {
-            try {
-                int idx = slangList.getSelectedIndex();
-                if (idx == -1) {
-                    showMessageDialog(this.frame, "Please select a slang to delete!");
-                } else {
-                    Slang s = slangList.getSelectedValue();
-                    slangModel.remove(idx);
-                    showMessageDialog(frame, "Delete successfully!");
-                    SlangDict.delete(s.getSlang(), s.getMeaning());
+            int idx = slangList.getSelectedIndex();
+            if (idx == -1) {
+                showMessageDialog(this.frame, "Please select a slang to delete!");
+            } else {
+                int selection = JOptionPane.showConfirmDialog(this.frame, "Are you sure?",
+                        "Delete a slang", JOptionPane.YES_NO_OPTION);
+                switch (selection) {
+                    // YES
+                    case 0:
+                        try {
+                            Slang s = slangList.getSelectedValue();
+                            slangModel.remove(idx);
+                            showMessageDialog(frame, "Delete successfully!");
+                            SlangDict.delete(s.getSlang(), s.getMeaning());
+                        } catch (Exception err) {
+                            // ignored
+                        } finally {
+                            break;
+                        }
+                    // NO
+                    case 1:
+                        break;
                 }
-            } catch (Exception err) {
-                // ignored
             }
         }
         if ("random_otd".equals(e.getActionCommand())) {
-
+            Slang s = SlangDict.randomOTD();
+            JOptionPane.showMessageDialog(this.frame, s.getSlang() + ": " + s.getMeaning(),
+                    "On this day slang word", JOptionPane.PLAIN_MESSAGE);
         }
         if ("random_sl".equals(e.getActionCommand())) {
 

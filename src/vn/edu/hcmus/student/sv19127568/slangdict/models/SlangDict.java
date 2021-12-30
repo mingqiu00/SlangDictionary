@@ -3,6 +3,7 @@ package vn.edu.hcmus.student.sv19127568.slangdict.models;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 /**
@@ -82,6 +83,34 @@ public class SlangDict {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * random a slang word on this day
+     * @return
+     */
+    public static Slang randomOTD() {
+        Random random = new Random();
+        Object[] values = slangDict.values().toArray();
+        String randomVal = (String) values[random.nextInt(values.length)];
+        String randomKey = getKeyByValue(randomVal);
+        return new Slang(randomKey, randomVal);
+    }
+
+    /**
+     * get slang word by definition
+     * @param val String
+     * @return slang String
+     */
+    private static String getKeyByValue(String val) {
+        for(Map.Entry<String, String> entry : slangDict.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (value.equals(val)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
