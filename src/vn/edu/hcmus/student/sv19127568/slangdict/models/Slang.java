@@ -1,4 +1,4 @@
-package vn.edu.hcmus.student.sv19127568.slangdict;
+package vn.edu.hcmus.student.sv19127568.slangdict.models;
 
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
@@ -7,9 +7,14 @@ package vn.edu.hcmus.student.sv19127568.slangdict;
  * Description: Slang model
  */
 public class Slang {
-    private String slang;
-    private String meaning;
+    private final String slang;
+    private final String meaning;
 
+    /**
+     * constructor
+     * @param slang String
+     * @param meaning String
+     */
     public Slang(String slang, String meaning) {
         this.slang = slang;
         this.meaning = meaning;
@@ -19,16 +24,8 @@ public class Slang {
         return slang;
     }
 
-    public void setSlang(String slang) {
-        this.slang = slang;
-    }
-
     public String getMeaning() {
         return meaning;
-    }
-
-    public void setMeaning(String meaning) {
-        this.meaning = meaning;
     }
 
     @Override

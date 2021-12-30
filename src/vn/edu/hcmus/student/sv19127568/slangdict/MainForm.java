@@ -1,9 +1,14 @@
 package vn.edu.hcmus.student.sv19127568.slangdict;
 
+import vn.edu.hcmus.student.sv19127568.slangdict.models.Slang;
+import vn.edu.hcmus.student.sv19127568.slangdict.models.SlangDict;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -20,11 +25,15 @@ import static javax.swing.JOptionPane.showMessageDialog;
 public class MainForm extends JPanel implements ActionListener {
     JLabel lbSearch;
     JTextArea txtMeaning;
-    JTextField txtSearch;
+    JTextField txtSearch, txtSlang, txtDef;
+    String slang, def;
     JComboBox cbSearch;
     JList<Slang> slangList;
+    JList<String> historyList;
     DefaultListModel<Slang> slangModel;
+    DefaultListModel<String> historyModel;
     JSplitPane splitPane;
+    JDialog historyDialog, slangDetailsDialog;
     final JFrame frame;
 
     public MainForm(JFrame frame) {
@@ -51,9 +60,12 @@ public class MainForm extends JPanel implements ActionListener {
         cbSearch.setActionCommand("search");
         slangList = new JList<Slang>();
         slangList.getSelectionModel().addListSelectionListener(e -> {
-            Slang s = slangList.getSelectedValue();
-            if (s != null) {
-                txtMeaning.setText(s.getMeaning());
+            if (!e.getValueIsAdjusting()) {
+                Slang s = slangList.getSelectedValue();
+                if (s != null) {
+                    SlangDict.history.add(s.getSlang());
+                    txtMeaning.setText(s.getMeaning());
+                }
             }
         });
         slangModel = new DefaultListModel<>();
@@ -74,6 +86,10 @@ public class MainForm extends JPanel implements ActionListener {
         resPanel.add(splitPane);
     }
 
+    /**
+     * create menu bar
+     * @return menu bar JMenuBar
+     */
     public JMenuBar createMenuBar() {
         JMenuBar menuBar;
         JMenu menu;
@@ -87,10 +103,14 @@ public class MainForm extends JPanel implements ActionListener {
 
         menuItem = new JMenuItem("History");
         menuItem.setToolTipText("View search history");
+        menuItem.setActionCommand("history");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Reset");
         menuItem.setToolTipText("Reset slang words list");
+        menuItem.setActionCommand("reset");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu = new JMenu("Action");
@@ -99,14 +119,20 @@ public class MainForm extends JPanel implements ActionListener {
 
         menuItem = new JMenuItem("Add");
         menuItem.setToolTipText("Add a new slang word");
+        menuItem.setActionCommand("add");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Edit");
         menuItem.setToolTipText("Edit an existing slang word");
+        menuItem.setActionCommand("edit");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Delete");
         menuItem.setToolTipText("Delete an existing slang word");
+        menuItem.setActionCommand("delete");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menu = new JMenu("Fun");
@@ -115,24 +141,58 @@ public class MainForm extends JPanel implements ActionListener {
 
         menuItem = new JMenuItem("On this day slang");
         menuItem.setToolTipText("Random a slang word and its definition");
+        menuItem.setActionCommand("random_otd");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Random slang");
         menuItem.setToolTipText("Random a slang word and choose the right definition");
+        menuItem.setActionCommand("random_sl");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         menuItem = new JMenuItem("Random definition");
         menuItem.setToolTipText("Random a definition and choose the right slang word");
+        menuItem.setActionCommand("random_def");
+        menuItem.addActionListener(this);
         menu.add(menuItem);
 
         return menuBar;
     }
 
+    private void createHistoryDialog(Vector<String> history) {
+        historyDialog = new JDialog(this.frame, "History");
+        historyDialog.setLayout(new BorderLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        historyList = new JList<>(history);
+        JScrollPane scrollPane = new JScrollPane(historyList);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        panel.add(scrollPane);
+
+        historyDialog.add(panel);
+        historyDialog.setSize(new Dimension(300, 400));
+        historyDialog.setLocationRelativeTo(null);
+        historyDialog.setVisible(true);
+    }
+
+    /**
+     * create and show main GUI
+     */
     public static void createAndShowGUI() {
         // Create and set up the window
         JFrame mainFrame = new JFrame("Slang dictionary");
         mainFrame.setPreferredSize(new Dimension(600,500));
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                SlangDict.saveDict();
+                SlangDict.saveHis();
+                System.exit(0);
+            }
+        });
 
         // Add contents to the window
         MainForm mainForm = new MainForm(mainFrame);
@@ -175,6 +235,31 @@ public class MainForm extends JPanel implements ActionListener {
                     sl.start();
                 }
             }
+        }
+        if ("history".equals(e.getActionCommand())) {
+            createHistoryDialog(SlangDict.history);
+        }
+        if ("reset".equals(e.getActionCommand())) {
+            SlangDict.reset();
+            showMessageDialog(this.frame, "Reset successfully!");
+        }
+        if ("add".equals(e.getActionCommand())) {
+
+        }
+        if ("edit".equals(e.getActionCommand())) {
+
+        }
+        if ("delete".equals(e.getActionCommand())) {
+
+        }
+        if ("random_otd".equals(e.getActionCommand())) {
+
+        }
+        if ("random_sl".equals(e.getActionCommand())) {
+
+        }
+        if ("random_def".equals(e.getActionCommand())) {
+
         }
     }
 }

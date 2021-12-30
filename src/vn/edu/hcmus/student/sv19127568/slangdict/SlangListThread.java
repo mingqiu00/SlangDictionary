@@ -1,5 +1,7 @@
 package vn.edu.hcmus.student.sv19127568.slangdict;
 
+import vn.edu.hcmus.student.sv19127568.slangdict.models.Slang;
+
 import javax.swing.*;
 import java.util.Vector;
 

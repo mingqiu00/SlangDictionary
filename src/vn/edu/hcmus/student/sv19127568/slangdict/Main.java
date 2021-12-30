@@ -1,5 +1,7 @@
 package vn.edu.hcmus.student.sv19127568.slangdict;
 
+import vn.edu.hcmus.student.sv19127568.slangdict.models.SlangDict;
+
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
  * Created by Thu Nguyen

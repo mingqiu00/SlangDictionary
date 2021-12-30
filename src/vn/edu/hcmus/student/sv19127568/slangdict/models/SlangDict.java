@@ -1,8 +1,9 @@
-package vn.edu.hcmus.student.sv19127568.slangdict;
+package vn.edu.hcmus.student.sv19127568.slangdict.models;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
@@ -12,9 +13,10 @@ import java.util.Map;
  */
 public class SlangDict {
     public static HashMap<String, String> slangDict;
+    public static Vector<String> history = new Vector<>();
 
     /**
-     * init slang dict
+     * init slang dict and load history
      */
     public static void init() {
         try {
@@ -24,21 +26,56 @@ public class SlangDict {
             slangDict = (HashMap<String, String>) ois.readObject();
             ois.close();
             fis.close();
+            fin = new File("history.dat");
+            if (fin.length() != 0) {
+                fis = new FileInputStream(fin);
+                ois = new ObjectInputStream(fis);
+                history = (Vector<String>) ois.readObject();
+                ois.close();
+                fis.close();
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     /**
+     * reset slang dict
+     */
+    public static void reset() {
+        slangDict.clear();
+        history.clear();
+        slangDict = hashFromTextFile();
+    }
+
+    /**
      * save the slang dictionary
      */
-    private void save() {
+    public static void saveDict() {
         try {
             File fout = new File("slangdict.dat");
             FileOutputStream fos = new FileOutputStream(fout);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
 
             oos.writeObject(slangDict);
+            oos.flush();
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * save slang dictionary's history
+     */
+    public static void saveHis() {
+        try {
+            File fout = new File("history.dat");
+            FileOutputStream fos = new FileOutputStream(fout);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+
+            oos.writeObject(history);
             oos.flush();
             oos.close();
             fos.close();
