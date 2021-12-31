@@ -251,11 +251,13 @@ public class MainForm extends JPanel implements ActionListener {
                             // overwrite slang with new definition
                             case 0:
                                 SlangDict.edit(slang, def);
+                                showMessageDialog(slangDetailsDialog, "Overwrite successfully!");
                                 slangDetailsDialog.setVisible(false);
                                 break;
                             // duplicate to a new slang
                             case 1:
                                 SlangDict.edit(slang, meaning + "| " + def);
+                                showMessageDialog(slangDetailsDialog, "Duplicate successfully!");
                                 slangDetailsDialog.setVisible(false);
                                 break;
                         }
@@ -449,7 +451,11 @@ public class MainForm extends JPanel implements ActionListener {
             if (isCorrect) {
                 showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
             } else {
-                showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!", "Wrong answer", ERROR_MESSAGE);
+                if (action.equals("slang")) {
+                    showMessageDialog(this.frame, "The correct definition is " + def, "Wrong answer", ERROR_MESSAGE);
+                } else if (action.equals("def")) {
+                    showMessageDialog(this.frame, "The correct slang is " + sl, "Wrong answer", ERROR_MESSAGE);
+                }
             }
         }
     }

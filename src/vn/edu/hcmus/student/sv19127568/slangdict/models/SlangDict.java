@@ -21,13 +21,13 @@ public class SlangDict {
      */
     public static void init() {
         try {
-            File fin = new File("slangdict.dat");
+            File fin = new File("data/slangdict.dat");
             FileInputStream fis = new FileInputStream(fin);
             ObjectInputStream ois = new ObjectInputStream(fis);
             slangDict = (HashMap<String, String>) ois.readObject();
             ois.close();
             fis.close();
-            fin = new File("history.dat");
+            fin = new File("data/history.dat");
             if (fin.length() != 0) {
                 fis = new FileInputStream(fin);
                 ois = new ObjectInputStream(fis);
@@ -54,7 +54,7 @@ public class SlangDict {
      */
     public static void saveDict() {
         try {
-            File fout = new File("slangdict.dat");
+            File fout = new File("data/slangdict.dat");
             FileOutputStream fos = new FileOutputStream(fout);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
 
@@ -72,7 +72,7 @@ public class SlangDict {
      */
     public static void saveHis() {
         try {
-            File fout = new File("history.dat");
+            File fout = new File("data/history.dat");
             FileOutputStream fos = new FileOutputStream(fout);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
 
@@ -211,7 +211,7 @@ public class SlangDict {
         HashMap<String, String> map = new HashMap<String, String>();
         BufferedReader br = null;
         try {
-            File file = new File("slang.txt");
+            File file = new File("data/slang.txt");
             br = new BufferedReader(new FileReader(file));
             String line = null;
             while ((line = br.readLine()) != null) {
