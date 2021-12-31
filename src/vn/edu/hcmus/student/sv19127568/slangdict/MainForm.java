@@ -38,6 +38,10 @@ public class MainForm extends JPanel implements ActionListener {
     final JFrame frame;
     final static int GAP = 10;
 
+    /**
+     * MainForm constructor
+     * @param frame JFrame
+     */
     public MainForm(JFrame frame) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel mainPanel = new JPanel();
@@ -164,6 +168,10 @@ public class MainForm extends JPanel implements ActionListener {
         return menuBar;
     }
 
+    /**
+     * create history dialog to show slang words search history
+     * @param history String Vector
+     */
     private void createHistoryDialog(Vector<String> history) {
         historyDialog = new JDialog(this.frame, "History", true);
         historyDialog.setLayout(new BorderLayout());
@@ -182,6 +190,12 @@ public class MainForm extends JPanel implements ActionListener {
         historyDialog.setVisible(true);
     }
 
+    /**
+     * create slang details dialog to add/edit
+     * @param action String
+     * @param slang_ String
+     * @param def_ String
+     */
     private void createSlangDetailsDialog(String action, String slang_, String def_) {
         slangDetailsDialog = new JDialog(this.frame, "Slang details", true);
         slangDetailsDialog.setLayout(new BorderLayout());
@@ -377,67 +391,65 @@ public class MainForm extends JPanel implements ActionListener {
                     "On this day slang word", PLAIN_MESSAGE);
         }
         if ("random_sl".equals(e.getActionCommand())) {
-            Slang s = SlangDict.random();
-            String sl = s.getSlang();
-            String def = s.getMeaning();
-            HashMap<String, String> res = SlangDict.searchBySlang(sl.substring(0,1));
-            Vector<String> options = new Vector<>();
+            randomSlang("slang");
+        }
+        if ("random_def".equals(e.getActionCommand())) {
+            randomSlang("def");
+        }
+    }
+
+    private void randomSlang(String action) {
+        Slang s = SlangDict.random();
+        String sl = s.getSlang();
+        String def = s.getMeaning();
+        HashMap<String, String> res = SlangDict.searchBySlang(sl.substring(0,1));
+        Vector<String> options = new Vector<>();
+        if (action.equals("slang")) {
             options.add(def);
-            for(Map.Entry<String, String> entry : res.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
+        } else if (action.equals("def")) {
+            options.add(sl);
+        }
+        for(Map.Entry<String, String> entry : res.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (action.equals("slang")) {
                 if (!key.equals(sl)) {
                     options.add(value);
                 }
-            }
-            Object[] ops = { options.get(0), options.get(1), options.get(2), options.get(3)};
-            Random rand = new Random();
-            for (int i = 0; i < ops.length; i++) {
-                int rdnIdx = rand.nextInt(ops.length);
-                Object tmp = ops[rdnIdx];
-                ops[rdnIdx] = ops[i];
-                ops[i] = tmp;
-            }
-            String str = (String) showInputDialog(this.frame, "Select the right definition for this slang:\n" + sl,
-                    "Guess the meaning", PLAIN_MESSAGE, null, ops, options.get(2));
-            if ((str != null) && (str.length() > 0)) {
-                if (str.equals(def)) {
-                    showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
-                } else {
-                    showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!");
-                }
-            }
-        }
-        if ("random_def".equals(e.getActionCommand())) {
-            Slang s = SlangDict.random();
-            String sl = s.getSlang();
-            String def = s.getMeaning();
-            HashMap<String, String> res = SlangDict.searchBySlang(sl.substring(0,1));
-            Vector<String> options = new Vector<>();
-            options.add(sl);
-            for(Map.Entry<String, String> entry : res.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
+            } else if (action.equals("def")) {
                 if (!value.equals(def)) {
                     options.add(key);
                 }
             }
-            Object[] ops = { options.get(0), options.get(1), options.get(2), options.get(3)};
-            Random rand = new Random();
-            for (int i = 0; i < ops.length; i++) {
-                int rdnIdx = rand.nextInt(ops.length);
-                Object tmp = ops[rdnIdx];
-                ops[rdnIdx] = ops[i];
-                ops[i] = tmp;
-            }
-            String str = (String) showInputDialog(this.frame, "Select the right slang for this definition:\n" + def,
+        }
+        Object[] ops = { options.get(0), options.get(1), options.get(2), options.get(3)};
+        Random rand = new Random();
+        for (int i = 0; i < ops.length; i++) {
+            int rdnIdx = rand.nextInt(ops.length);
+            Object tmp = ops[rdnIdx];
+            ops[rdnIdx] = ops[i];
+            ops[i] = tmp;
+        }
+        String str = null;
+        if (action.equals("slang")) {
+            str = (String) showInputDialog(this.frame, "Select the right definition for this slang:\n" + sl,
+                    "Guess the meaning", PLAIN_MESSAGE, null, ops, options.get(2));
+
+        } else if (action.equals("def")) {
+            str = (String) showInputDialog(this.frame, "Select the right slang for this definition:\n" + def,
                     "Guess the slang", PLAIN_MESSAGE, null, ops, options.get(2));
-            if ((str != null) && (str.length() > 0)) {
-                if (str.equals(sl)) {
-                    showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
-                } else {
-                    showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!");
-                }
+        }
+        if ((str != null) && (str.length() > 0)) {
+            boolean isCorrect = false;
+            if (action.equals("slang")) {
+                isCorrect = str.equals(def);
+            } else if (action.equals("def")) {
+                isCorrect = str.equals(sl);
+            }
+            if (isCorrect) {
+                showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
+            } else {
+                showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!", "Wrong answer", ERROR_MESSAGE);
             }
         }
     }
