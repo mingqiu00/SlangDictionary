@@ -12,11 +12,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Random;
 import java.util.Vector;
 
-import static javax.swing.JOptionPane.ERROR_MESSAGE;
-import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.*;
 
 /**
  * vn.edu.hcmus.student.sv19127568.slangdict
@@ -232,8 +231,8 @@ public class MainForm extends JPanel implements ActionListener {
                         slangDetailsDialog.setVisible(false);
                     } else {
                         Object[] options = {"Overwrite", "Duplicate"};
-                        int selection = JOptionPane.showOptionDialog(slangDetailsDialog, "Existing slang in dictionary?",
-                                "Existing slang options", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+                        int selection = showOptionDialog(slangDetailsDialog, "Existing slang in dictionary?",
+                                "Existing slang options", YES_NO_OPTION, QUESTION_MESSAGE, null, options, null);
                         switch (selection) {
                             // overwrite slang with new definition
                             case 0:
@@ -351,8 +350,8 @@ public class MainForm extends JPanel implements ActionListener {
             if (idx == -1) {
                 showMessageDialog(this.frame, "Please select a slang to delete!");
             } else {
-                int selection = JOptionPane.showConfirmDialog(this.frame, "Are you sure?",
-                        "Delete a slang", JOptionPane.YES_NO_OPTION);
+                int selection = showConfirmDialog(this.frame, "Are you sure?",
+                        "Delete a slang", YES_NO_OPTION);
                 switch (selection) {
                     // YES
                     case 0:
@@ -373,15 +372,73 @@ public class MainForm extends JPanel implements ActionListener {
             }
         }
         if ("random_otd".equals(e.getActionCommand())) {
-            Slang s = SlangDict.randomOTD();
-            JOptionPane.showMessageDialog(this.frame, s.getSlang() + ": " + s.getMeaning(),
-                    "On this day slang word", JOptionPane.PLAIN_MESSAGE);
+            Slang s = SlangDict.random();
+            showMessageDialog(this.frame, s.getSlang() + ": " + s.getMeaning(),
+                    "On this day slang word", PLAIN_MESSAGE);
         }
         if ("random_sl".equals(e.getActionCommand())) {
-
+            Slang s = SlangDict.random();
+            String sl = s.getSlang();
+            String def = s.getMeaning();
+            HashMap<String, String> res = SlangDict.searchBySlang(sl.substring(0,1));
+            Vector<String> options = new Vector<>();
+            options.add(def);
+            for(Map.Entry<String, String> entry : res.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (!key.equals(sl)) {
+                    options.add(value);
+                }
+            }
+            Object[] ops = { options.get(0), options.get(1), options.get(2), options.get(3)};
+            Random rand = new Random();
+            for (int i = 0; i < ops.length; i++) {
+                int rdnIdx = rand.nextInt(ops.length);
+                Object tmp = ops[rdnIdx];
+                ops[rdnIdx] = ops[i];
+                ops[i] = tmp;
+            }
+            String str = (String) showInputDialog(this.frame, "Select the right definition for this slang:\n" + sl,
+                    "Guess the meaning", PLAIN_MESSAGE, null, ops, options.get(2));
+            if ((str != null) && (str.length() > 0)) {
+                if (str.equals(def)) {
+                    showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
+                } else {
+                    showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!");
+                }
+            }
         }
         if ("random_def".equals(e.getActionCommand())) {
-
+            Slang s = SlangDict.random();
+            String sl = s.getSlang();
+            String def = s.getMeaning();
+            HashMap<String, String> res = SlangDict.searchBySlang(sl.substring(0,1));
+            Vector<String> options = new Vector<>();
+            options.add(sl);
+            for(Map.Entry<String, String> entry : res.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                if (!value.equals(def)) {
+                    options.add(key);
+                }
+            }
+            Object[] ops = { options.get(0), options.get(1), options.get(2), options.get(3)};
+            Random rand = new Random();
+            for (int i = 0; i < ops.length; i++) {
+                int rdnIdx = rand.nextInt(ops.length);
+                Object tmp = ops[rdnIdx];
+                ops[rdnIdx] = ops[i];
+                ops[i] = tmp;
+            }
+            String str = (String) showInputDialog(this.frame, "Select the right slang for this definition:\n" + def,
+                    "Guess the slang", PLAIN_MESSAGE, null, ops, options.get(2));
+            if ((str != null) && (str.length() > 0)) {
+                if (str.equals(sl)) {
+                    showMessageDialog(this.frame, "That's the correct answer! Congratulations!");
+                } else {
+                    showMessageDialog(this.frame, "That's not the correct answer! Good luck next time!");
+                }
+            }
         }
     }
 }

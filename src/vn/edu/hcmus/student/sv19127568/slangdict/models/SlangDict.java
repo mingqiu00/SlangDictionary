@@ -86,10 +86,10 @@ public class SlangDict {
     }
 
     /**
-     * random a slang word on this day
+     * random a slang word
      * @return
      */
-    public static Slang randomOTD() {
+    public static Slang random() {
         Random random = new Random();
         Object[] values = slangDict.values().toArray();
         String randomVal = (String) values[random.nextInt(values.length)];
